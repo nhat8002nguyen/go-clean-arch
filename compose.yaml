@@ -28,3 +28,21 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 5s
       retries: 10
+
+  postgres:
+    image: postgres:latest
+    container_name: ecommerce_go_postgres
+    restart: always
+    volumes:
+      - ./sql/article-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=article
+      - POSTGRES_USER=nhatnguyen
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
