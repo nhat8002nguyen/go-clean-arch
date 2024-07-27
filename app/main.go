@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -96,7 +97,7 @@ func main() {
 		}
 	}()
 
-	log.Default().Printf("connected %s database", os.Getenv("DATABASE_DRIVER"))
+	log.Default().Printf("connected %s database", strings.ToUpper(os.Getenv("DATABASE_DRIVER")))
 
 	// prepare echo
 	e := echo.New()
