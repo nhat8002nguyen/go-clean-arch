@@ -39,7 +39,7 @@ resource "aws_security_group" "rds_sg" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Replace this with the actual SG or CIDR range for your ECS
+    cidr_blocks = ["0.0.0.0/0"] # Replace this with the actual SG or CIDR range for your ECS
   }
 }
 
@@ -58,7 +58,7 @@ resource "aws_ecs_task_definition" "ecommerce_app_task" {
 
   container_definitions = jsonencode([{
     name      = "ecommerce-app-container"
-    image     = "your-account-id.dkr.ecr.your-region.amazonaws.com/your-repo/your-app-name:latest"
+    image     = "700876988155.dkr.ecr.ap-southeast-1.amazonaws.com/ecommerce-go-app:latest"
     cpu       = 256
     memory    = 512
     essential = true
@@ -95,8 +95,8 @@ resource "aws_ecs_service" "ecommerce_app_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = var.subnets
-    security_groups = [aws_security_group.ecs_sg.id]
+    subnets          = var.subnets
+    security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
 }
@@ -116,7 +116,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port   = 9090
     to_port     = 9090
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Update to actual access CIDR or Security Group
+    cidr_blocks = ["0.0.0.0/0"] # Update to actual access CIDR or Security Group
   }
 }
 

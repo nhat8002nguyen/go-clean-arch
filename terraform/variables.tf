@@ -26,7 +26,6 @@ variable "db_username" {
 variable "db_password" {
   description = "The database password"
   type        = string
-  default     = "your-db-password"
 }
 
 variable "vpc_id" {
