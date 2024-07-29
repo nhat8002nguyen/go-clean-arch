@@ -37,3 +37,13 @@ variable "subnets" {
   description = "The list of subnets to deploy ECS and RDS into"
   type        = list(string)
 }
+
+variable "AWS_SECRET_ACCESS_KEY" {
+  description = "The secret access key to AWS"
+  type        = string
+}
+
+variable "AWS_ACCESS_KEY_ID" {
+  description = "the access key id to AWS"
+  type        = string
+}
