@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/bxcodec/go-clean-arch/domain"
+	"github.com/nhat8002nguyen/ecommerce-go-app/domain"
 )
 
 // ArticleRepository represent the article's repository contract
