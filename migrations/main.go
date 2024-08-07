@@ -15,7 +15,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func isEcsEnvironment() bool {
+	_, exists := os.LookupEnv("AWS_EXECUTION_ENV")
+	return exists
+}
+
+func isRunningInDocker() bool {
+	// Check for the existence of /.dockerenv file
+	_, err := os.Stat("/.dockerenv")
+	if err == nil {
+		return true
+	}
+
+	// Check if cgroups indicate a containerized environment
+	cgroup, err := os.ReadFile("/proc/self/cgroup")
+	if err != nil {
+		return false
+	}
+
+	return strings.Contains(string(cgroup), "docker")
+}
+
 func init() {
+	if isEcsEnvironment() || isRunningInDocker() {
+		return
+	}
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -23,12 +47,28 @@ func init() {
 }
 
 func connectMysql() (*sql.DB, error) {
-	//prepare database
-	dbHost := os.Getenv("DATABASE_HOST")
-	dbPort := os.Getenv("DATABASE_PORT")
-	dbUser := os.Getenv("DATABASE_USER")
-	dbPass := os.Getenv("DATABASE_PASS")
-	dbName := os.Getenv("DATABASE_NAME")
+	// Retrieve environment variables
+	dbHost, ok := os.LookupEnv("DATABASE_HOST")
+	if !ok {
+		log.Fatal("missing env var DATABASE_HOST")
+	}
+	dbPort, ok := os.LookupEnv("DATABASE_PORT")
+	if !ok {
+		log.Fatal("missing env var DATABASE_PORT")
+	}
+	dbUser, ok := os.LookupEnv("DATABASE_USER")
+	if !ok {
+		log.Fatal("missing env var DATABASE_USER")
+	}
+	dbPass, ok := os.LookupEnv("DATABASE_PASS")
+	if !ok {
+		log.Fatal("missing env var DATABASE_USER")
+	}
+	dbName, ok := os.LookupEnv("DATABASE_NAME")
+	if !ok {
+		log.Fatal("missing env var DATABASE_NAME")
+	}
+
 	// mysql connection str
 	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	val := url.Values{}
@@ -42,11 +82,26 @@ func connectMysql() (*sql.DB, error) {
 
 func connectPostgres() (*sql.DB, error) {
 	// Retrieve environment variables
-	dbHost := os.Getenv("DATABASE_HOST")
-	dbPort := os.Getenv("DATABASE_PORT")
-	dbUser := os.Getenv("DATABASE_USER")
-	dbPass := os.Getenv("DATABASE_PASS")
-	dbName := os.Getenv("DATABASE_NAME")
+	dbHost, ok := os.LookupEnv("DATABASE_HOST")
+	if !ok {
+		log.Fatal("missing env var DATABASE_HOST")
+	}
+	dbPort, ok := os.LookupEnv("DATABASE_PORT")
+	if !ok {
+		log.Fatal("missing env var DATABASE_PORT")
+	}
+	dbUser, ok := os.LookupEnv("DATABASE_USER")
+	if !ok {
+		log.Fatal("missing env var DATABASE_USER")
+	}
+	dbPass, ok := os.LookupEnv("DATABASE_PASS")
+	if !ok {
+		log.Fatal("missing env var DATABASE_USER")
+	}
+	dbName, ok := os.LookupEnv("DATABASE_NAME")
+	if !ok {
+		log.Fatal("missing env var DATABASE_NAME")
+	}
 
 	// Construct the PostgreSQL connection string
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -60,7 +115,10 @@ func connectPostgres() (*sql.DB, error) {
 }
 
 func main() {
-	dbDriver := os.Getenv("DATABASE_DRIVER")
+	dbDriver, ok := os.LookupEnv("DATABASE_DRIVER")
+	if !ok {
+		log.Fatal("missing env var DATABASE_DRIVER")
+	}
 	var dbConn *sql.DB
 	var err error
 	if dbDriver == "mysql" {
@@ -92,7 +150,7 @@ func main() {
 	goose.SetDialect("postgres") // Set the dialect for your database
 
 	ctx := context.Background()
-	if err := goose.RunContext(ctx, os.Args[1], dbConn, "migrations"); err != nil {
+	if err := goose.RunContext(ctx, os.Args[1], dbConn, "."); err != nil {
 		log.Fatalf("failed to run goose command: %v", err)
 	}
 }
