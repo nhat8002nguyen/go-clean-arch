@@ -133,20 +133,40 @@ resource "aws_ecs_task_definition" "ecommerce_app_task" {
     }]
     environment = [
       {
-        name  = "POSTGRES_DB"
+        name  = "CONTEXT_TIMEOUT"
+        value = var.context_timeout
+      },
+      {
+        name  = "SERVER_ADDRESS"
+        value = var.server_address
+      },
+      {
+        name  = "DEBUG"
+        value = var.is_debug
+      },
+      {
+        name  = "DATABASE_DRIVER"
+        value = var.db_driver
+      },
+      {
+        name  = "DATABASE_NAME"
         value = var.db_name
       },
       {
-        name  = "POSTGRES_USER"
+        name  = "DATABASE_USER"
         value = var.db_username
       },
       {
-        name  = "POSTGRES_PASSWORD"
+        name  = "DATABASE_PASS"
         value = var.db_password
       },
       {
-        name  = "POSTGRES_HOST"
+        name  = "DATABASE_HOST"
         value = aws_db_instance.ecommerce_app_db.address
+      },
+      {
+        name  = "DATABASE_PORT"
+        value = aws_db_instance.ecommerce_app_db.port
       }
     ]
   }])
@@ -272,4 +292,48 @@ resource "aws_instance" "bastion" {
   tags = {
     Name = "bastion-host"
   }
+}
+
+resource "aws_ecs_task_definition" "ecommerce_app_migration_task" {
+  family                   = "ecommerce-app-migration-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([{
+    name      = "ecommerce-migrations-container"
+    image     = "700876988155.dkr.ecr.ap-southeast-1.amazonaws.com/ecommerce-migrations:latest"
+    cpu       = 256
+    memory    = 512
+    essential = true
+    environment = [
+      {
+        name  = "DATABASE_DRIVER"
+        value = var.db_driver
+      },
+      {
+        name  = "DATABASE_NAME"
+        value = var.db_name
+      },
+      {
+        name  = "DATABASE_USER"
+        value = var.db_username
+      },
+      {
+        name  = "DATABASE_PASS"
+        value = var.db_password
+      },
+      {
+        name  = "DATABASE_HOST"
+        value = aws_db_instance.ecommerce_app_db.address
+      },
+      {
+        name  = "DATABASE_PORT"
+        value = aws_db_instance.ecommerce_app_db.port
+      }
+    ]
+  }])
 }
