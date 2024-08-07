@@ -147,12 +147,4 @@ clean-artifacts: ## Removes Artifacts (*.out)
 clean-docker: ## Removes dangling docker images
 	@ docker image prune -f
 
-create-migration: 
-	@ cd migrations && goose create $(name) sql
-
-migration-up:
-	@ go run migrations/main.go up
-
-migration-down:
-	@ go run migrations/main.go down
 

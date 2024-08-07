@@ -1,0 +1,23 @@
+// command to run docker container locally.
+docker run --rm -p 9090:9090 -e DEBUG=True \
+           -e SERVER_ADDRESS=:9090 \
+           -e CONTEXT_TIMEOUT=2 \
+           -e DATABASE_DRIVER=postgres \
+           -e DATABASE_HOST=host.docker.internal \
+           -e DATABASE_PORT=5432 \
+           -e DATABASE_USER=nhatnguyen \
+           -e DATABASE_PASS=123 \
+           -e DATABASE_NAME=ecommerce_app \
+           ecommerce-go-app
+           
+// command to run migration locally.
+docker run --rm -e DEBUG=True \
+           -e SERVER_ADDRESS=:9090 \
+           -e CONTEXT_TIMEOUT=2 \
+           -e DATABASE_DRIVER=postgres \
+           -e DATABASE_HOST=host.docker.internal \
+           -e DATABASE_PORT=5432 \
+           -e DATABASE_USER=nhatnguyen \
+           -e DATABASE_PASS=123 \
+           -e DATABASE_NAME=ecommerce_app \
+           migrations
