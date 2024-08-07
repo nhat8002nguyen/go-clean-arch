@@ -164,7 +164,7 @@ resource "aws_ecs_service" "ecommerce_app_service" {
       aws_subnet.private_subnet_rds_2.id,
       aws_subnet.private_subnet_rds_3.id
     ]
-    security_groups  = [aws_security_group.ecs_sg.id, aws_security_group.bastion]
+    security_groups  = [aws_security_group.ecs_sg.id, aws_security_group.bastion.id]
     assign_public_ip = false
   }
 }
