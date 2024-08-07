@@ -28,13 +28,8 @@ variable "db_password" {
   type        = string
 }
 
-variable "vpc_id" {
-  description = "The VPC ID to deploy ECS and RDS into"
-  type        = string
-}
-
-variable "subnets" {
-  description = "The list of subnets to deploy ECS and RDS into"
+variable "local_ips" {
+  description = "The local ip addresses that can access the bastion host."
   type        = list(string)
 }
 
