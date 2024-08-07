@@ -66,7 +66,7 @@ resource "aws_route_table_association" "private_subnet_association_3" {
 
 resource "aws_db_subnet_group" "ecommerce_app_db_subnet_group" {
   name       = "ecommerce-app-db-subnet-group"
-  subnet_ids = [aws_subnet.private_subnet_rds_1, aws_subnet.private_subnet_rds_2, aws_subnet.private_subnet_rds_3]
+  subnet_ids = [aws_subnet.private_subnet_rds_1.id, aws_subnet.private_subnet_rds_2.id, aws_subnet.private_subnet_rds_3.id]
 }
 
 resource "aws_security_group" "rds_sg" {
