@@ -97,6 +97,7 @@ resource "aws_db_instance" "ecommerce_app_db" {
   engine_version       = "16.3"
   instance_class       = var.rds_instance_class
   identifier           = "ecommerce-app-db"
+  db_name              = var.db_name
   username             = var.db_username
   password             = var.db_password
   parameter_group_name = "default.postgres16"
