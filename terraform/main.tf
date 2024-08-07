@@ -134,7 +134,7 @@ resource "aws_ecs_task_definition" "ecommerce_app_task" {
     environment = [
       {
         name  = "CONTEXT_TIMEOUT"
-        value = var.context_timeout
+        value = tostring(var.context_timeout)
       },
       {
         name  = "SERVER_ADDRESS"
@@ -142,7 +142,7 @@ resource "aws_ecs_task_definition" "ecommerce_app_task" {
       },
       {
         name  = "DEBUG"
-        value = var.is_debug
+        value = var.is_debug ? "true" : "false"
       },
       {
         name  = "DATABASE_DRIVER"
@@ -166,7 +166,7 @@ resource "aws_ecs_task_definition" "ecommerce_app_task" {
       },
       {
         name  = "DATABASE_PORT"
-        value = aws_db_instance.ecommerce_app_db.port
+        value = tostring(aws_db_instance.ecommerce_app_db.port)
       }
     ]
   }])
@@ -332,8 +332,26 @@ resource "aws_ecs_task_definition" "ecommerce_app_migration_task" {
       },
       {
         name  = "DATABASE_PORT"
-        value = aws_db_instance.ecommerce_app_db.port
+        value = tostring(aws_db_instance.ecommerce_app_db.port)
       }
     ]
   }])
+}
+
+resource "aws_ecs_service" "ecommerce_migration_service" {
+  name            = "ecommerce-migration-service"
+  cluster         = aws_ecs_cluster.ecommerce_app_cluster.id
+  task_definition = aws_ecs_task_definition.ecommerce_app_migration_task.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets = [
+      aws_subnet.private_subnet_rds_1.id,
+      aws_subnet.private_subnet_rds_2.id,
+      aws_subnet.private_subnet_rds_3.id
+    ]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
 }
