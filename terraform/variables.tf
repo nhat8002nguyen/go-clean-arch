@@ -11,6 +11,21 @@ variable "rds_instance_class" {
   default     = "db.t3.micro"
 }
 
+variable "context_timeout" {
+  description = "The application context timeout"
+  type        = number
+}
+
+variable "server_address" {
+  description = "The application server address port"
+  type        = string
+}
+
+variable "is_debug" {
+  description = "The debug mode"
+  type        = bool
+}
+
 variable "db_name" {
   description = "The database name"
   type        = string
@@ -25,6 +40,11 @@ variable "db_username" {
 
 variable "db_password" {
   description = "The database password"
+  type        = string
+}
+
+variable "db_driver" {
+  description = "The database driver"
   type        = string
 }
 
