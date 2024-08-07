@@ -13,7 +13,7 @@ resource "aws_vpc" "main" {
 # Private Subnets for RDS
 resource "aws_subnet" "private_subnet_rds_1" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"   # Adjust CIDR block as needed
+  cidr_block        = "10.0.2.0/24"     # Adjust CIDR block as needed
   availability_zone = "ap-southeast-1a" # Replace with your AZ
   tags = {
     Name = "rds-private-subnet-1"
@@ -23,7 +23,7 @@ resource "aws_subnet" "private_subnet_rds_1" {
 # Private Subnets for RDS
 resource "aws_subnet" "private_subnet_rds_2" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24"   # Adjust CIDR block as needed
+  cidr_block        = "10.0.3.0/24"     # Adjust CIDR block as needed
   availability_zone = "ap-southeast-1b" # Replace with another AZ
   tags = {
     Name = "rds-private-subnet-2"
@@ -33,7 +33,7 @@ resource "aws_subnet" "private_subnet_rds_2" {
 # Private Subnets for RDS
 resource "aws_subnet" "private_subnet_rds_3" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.4.0/24"   # Adjust CIDR block as needed
+  cidr_block        = "10.0.4.0/24"     # Adjust CIDR block as needed
   availability_zone = "ap-southeast-1c" # Replace with another AZ
   tags = {
     Name = "rds-private-subnet-3"
@@ -60,7 +60,7 @@ resource "aws_route_table_association" "private_subnet_association_2" {
 }
 
 resource "aws_route_table_association" "private_subnet_association_3" {
-  subnet_id      = aws_subnet.private_subnet_rds_3.id 
+  subnet_id      = aws_subnet.private_subnet_rds_3.id
   route_table_id = aws_route_table.private_route_table.id
 }
 
@@ -81,9 +81,9 @@ resource "aws_security_group" "rds_sg" {
   }
 
   ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
     security_groups = [aws_security_group.ecs_sg.id]
   }
 }
@@ -99,6 +99,7 @@ resource "aws_db_instance" "ecommerce_app_db" {
   password             = var.db_password
   parameter_group_name = "default.postgres16"
   skip_final_snapshot  = true
+  publicly_accessible  = true
 
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
   db_subnet_group_name   = aws_db_subnet_group.ecommerce_app_db_subnet_group.name
@@ -156,9 +157,9 @@ resource "aws_ecs_service" "ecommerce_app_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [
-      aws_subnet.private_subnet_rds_1.id, 
-      aws_subnet.private_subnet_rds_2.id, 
+    subnets = [
+      aws_subnet.private_subnet_rds_1.id,
+      aws_subnet.private_subnet_rds_2.id,
       aws_subnet.private_subnet_rds_3.id
     ]
     security_groups  = [aws_security_group.ecs_sg.id]
@@ -201,7 +202,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "ap-southeast-1a" 
+  availability_zone       = "ap-southeast-1a"
   map_public_ip_on_launch = true
   tags = {
     Name = "bastion-public-subnet"
@@ -259,10 +260,10 @@ resource "aws_security_group" "bastion" {
 
 # Bastion Host
 resource "aws_instance" "bastion" {
-  ami           = "ami-060e277c0d4cce553" # Ubuntu Server 24.04 LTS in ap-southeast-1
-  instance_type = "t2.micro"
-  key_name      = "ecommerce_app" # Replace with your key pair
-  subnet_id     = aws_subnet.public.id
+  ami                    = "ami-060e277c0d4cce553" # Ubuntu Server 24.04 LTS in ap-southeast-1
+  instance_type          = "t2.micro"
+  key_name               = "ecommerce_app" # Replace with your key pair
+  subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.bastion.id]
 
   tags = {
