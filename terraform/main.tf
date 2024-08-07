@@ -157,9 +157,9 @@ resource "aws_ecs_service" "ecommerce_app_service" {
 
   network_configuration {
     subnets          = [
-      aws_subnet.private_subnet_rds_1, 
-      aws_subnet.private_subnet_rds_2, 
-      aws_subnet.private_subnet_rds_3
+      aws_subnet.private_subnet_rds_1.id, 
+      aws_subnet.private_subnet_rds_2.id, 
+      aws_subnet.private_subnet_rds_3.id
     ]
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = false
