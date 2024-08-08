@@ -123,7 +123,7 @@ resource "aws_ecs_task_definition" "ecommerce_app_task" {
 
   container_definitions = jsonencode([{
     name      = "ecommerce-app-container"
-    image     = "700876988155.dkr.ecr.ap-southeast-1.amazonaws.com/ecommerce-go-app:latest"
+    image     = var.ecommerce_app_ecr_uri
     cpu       = 256
     memory    = 512
     essential = true
@@ -305,7 +305,7 @@ resource "aws_ecs_task_definition" "ecommerce_app_migration_task" {
 
   container_definitions = jsonencode([{
     name      = "ecommerce-migrations-container"
-    image     = "700876988155.dkr.ecr.ap-southeast-1.amazonaws.com/ecommerce-migrations:latest"
+    image     = var.db_migration_ecr_uri
     cpu       = 256
     memory    = 512
     essential = true

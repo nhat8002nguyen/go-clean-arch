@@ -62,3 +62,13 @@ variable "AWS_ACCESS_KEY_ID" {
   description = "the access key id to AWS"
   type        = string
 }
+
+variable "ecommerce_app_ecr_uri" {
+  description = "the ECR URI of the main app"
+  type        = string
+}
+
+variable "db_migration_ecr_uri" {
+  description = "the ECR URI of the migration app"
+  type        = string
+}
