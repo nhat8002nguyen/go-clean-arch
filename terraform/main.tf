@@ -216,6 +216,26 @@ resource "aws_iam_role" "ecs_task_execution_role" {
     }]
   })
 
+  # Add necessary permissions for ECR access
+  inline_policy {
+    name = "AllowECRPull"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect = "Allow",
+          Action = [
+            "ecr:GetAuthorizationToken",
+            "ecr:BatchCheckLayerAvailability",
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:BatchGetImage"
+          ],
+          Resource = "*" # Or specify specific ECR repository ARNs for more granular control
+        },
+      ]
+    })
+  }
+
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
   ]
