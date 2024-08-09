@@ -1,32 +1,18 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
-	"time"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/labstack/echo/v4"
-	_ "github.com/lib/pq"
-	"github.com/sirupsen/logrus"
-
-	// mysqlRepo "github.com/nhat8002nguyen/ecommerce-go-app/internal/repository/mysql"
-	postgresRepo "github.com/nhat8002nguyen/ecommerce-go-app/internal/repository/postgresql"
 
 	"github.com/joho/godotenv"
-	"github.com/nhat8002nguyen/ecommerce-go-app/article"
-	"github.com/nhat8002nguyen/ecommerce-go-app/internal/rest"
-	"github.com/nhat8002nguyen/ecommerce-go-app/internal/rest/middleware"
-)
-
-const (
-	defaultTimeout = 30
-	defaultAddress = ":9090"
+	_ "github.com/lib/pq" // Replace with your SQL driver
+	"github.com/pressly/goose/v3"
+	"github.com/sirupsen/logrus"
 )
 
 func isEcsEnvironment() bool {
@@ -61,7 +47,7 @@ func init() {
 }
 
 func connectMysql() (*sql.DB, error) {
-	//prepare database
+	// Retrieve environment variables
 	dbHost, ok := os.LookupEnv("DATABASE_HOST")
 	if !ok {
 		log.Fatal("missing env var DATABASE_HOST")
@@ -82,6 +68,7 @@ func connectMysql() (*sql.DB, error) {
 	if !ok {
 		log.Fatal("missing env var DATABASE_NAME")
 	}
+
 	// mysql connection str
 	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	val := url.Values{}
@@ -156,37 +143,14 @@ func main() {
 
 	log.Default().Printf("connected %s database", strings.ToUpper(os.Getenv("DATABASE_DRIVER")))
 
-	// prepare echo
-	e := echo.New()
-	e.Use(middleware.CORS)
-	timeoutStr := os.Getenv("CONTEXT_TIMEOUT")
-	timeout, err := strconv.Atoi(timeoutStr)
-	if err != nil {
-		log.Println("failed to parse timeout, using default timeout")
-		timeout = defaultTimeout
-	}
-	timeoutContext := time.Duration(timeout) * time.Second
-	e.Use(middleware.SetRequestContextWithTimeout(timeoutContext))
-
-	// Prepare Repository
-	var articleRepo article.ArticleRepository
-	var authorRepo article.AuthorRepository
-	if dbDriver == "mysql" {
-		authorRepo = postgresRepo.NewAuthorRepository(dbConn)
-		articleRepo = postgresRepo.NewArticleRepository(dbConn)
-	} else if dbDriver == "postgres" {
-		authorRepo = postgresRepo.NewAuthorRepository(dbConn)
-		articleRepo = postgresRepo.NewArticleRepository(dbConn)
+	if len(os.Args) < 2 {
+		log.Fatal("please provide a goose command")
 	}
 
-	// Build service Layer
-	svc := article.NewService(articleRepo, authorRepo)
-	rest.NewArticleHandler(e, svc)
+	goose.SetDialect("postgres") // Set the dialect for your database
 
-	// Start Server
-	address := os.Getenv("SERVER_ADDRESS")
-	if address == "" {
-		address = defaultAddress
+	ctx := context.Background()
+	if err := goose.RunContext(ctx, os.Args[1], dbConn, "."); err != nil {
+		log.Fatalf("failed to run goose command: %v", err)
 	}
-	log.Fatal(e.Start(address)) //nolint
 }
